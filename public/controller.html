@@ -81,10 +81,10 @@
 
         const sendFlower = flower => {
             if (dataChannel && dataChannel.readyState === "open") {
-                console.log("📤 Sending flower:", flower);
+                console.log(" Sending flower:", flower);
                 dataChannel.send(flower);
             } else {
-                console.log("❌ DataChannel not open yet");
+                console.log("DataChannel not open yet");
             }
         };
 
