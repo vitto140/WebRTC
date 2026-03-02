@@ -106,6 +106,7 @@ npm start
 - WebRTC connection with QR pairing
 - Basic flower selection and rendering
 - Console logging to prove data flow
+
 ### Week 3
 ### Week 4
 ### Week 5
