@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>LoveYours</title>
+</head>
+<body>
+    <h1>LOVE YOURS</h1>
+    <p id="url"></p>
+    <div id="qr"></div>
+
+    <h2>Bouquet</h2>
+    <div id="bouquet" style="font-size: 3rem;"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+    <script>
+        let socket;
+        let peerConnection;
+        let dataChannel;
+        let targetSocketId;
+
+        const servers = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+
+        const $bouquet = document.getElementById('bouquet');
+        const $url = document.getElementById('url');
+
+        const init = () => {
+            socket = io.connect('/');
+
+            socket.on('connect', () => {
+                console.log('Connected:', socket.id);
+
+                const url = `http://192.168.9.236:3000/controller.html?id=${socket.id}`;
+                $url.textContent = url;
+
+                const qr = qrcode(4, 'L');
+                qr.addData(url);
+                qr.make();
+                document.getElementById('qr').innerHTML = qr.createImgTag(4);
+            });
+
+            socket.on('signal', async (fromId, signal) => {
+                console.log('Received signal from', fromId);
+                targetSocketId = fromId;
+
+                if (!peerConnection) {
+                    createPeer(false);
+                }
+
+                if (signal.type === 'offer') {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    socket.emit('signal', fromId, answer);
+
+                } else if (signal.type === 'answer') {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+
+                } else {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
+                }
+            });
+             
+            socket.on('peer-disconnected', (id) => {
+                console.log('Peer disconnected:', id);
+                peerConnection = null;
+            });
+        };
+
+        const createPeer = (initiator) => {
+            peerConnection = new RTCPeerConnection(servers);
+
+            peerConnection.onicecandidate = e => {
+                if (e.candidate) {
+                    socket.emit('signal', targetSocketId, e.candidate);
+                }
+            };
+
+            if (!initiator) {
+                peerConnection.ondatachannel = e => {
+                    dataChannel = e.channel;
+                    setupDataChannel();
+                };
+            }
+        };
+
+        const setupDataChannel = () => {
+            dataChannel.onopen = () => {
+                console.log("✅ Desktop: DataChannel OPEN");
+            };
+
+            dataChannel.onmessage = e => {
+                console.log("🌸 Desktop received flower:", e.data);
+
+                const flower = document.createElement("span");
+                flower.textContent = e.data;
+                flower.style.fontSize = "4rem";
+                flower.style.margin = "10px";
+
+                document.getElementById("bouquet").appendChild(flower);
+            };
+        };
+
+        init();
+    </script>
+</body>
+</html>

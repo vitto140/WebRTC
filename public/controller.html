@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Controller</title>
+</head>
+
+<body>
+
+    <h1>Phone Controller</h1>
+
+    <button onclick="sendFlower('🌹')">Rose</button>
+    <button onclick="sendFlower('🌻')">Sunflower</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        let socket;
+        let peerConnection;
+        let dataChannel;
+        let targetSocketId;
+
+        const servers = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        };
+
+        const getUrlParameter = name => {
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? false : decodeURIComponent(results[1]);
+        };
+
+        const init = async () => {
+            targetSocketId = getUrlParameter('id');
+            if (!targetSocketId) {
+                alert('Missing id');
+                return;
+            }
+
+            socket = io.connect('/');
+
+            socket.on('connect', async () => {
+                console.log('Connected:', socket.id);
+                await createPeer(true);
+            });
+
+            socket.on('signal', async (fromId, signal) => {
+                console.log('Received signal from', fromId);
+
+                if (signal.type === 'answer') {
+                    await peerConnection.setRemoteDescription(signal);
+                } else {
+                    await peerConnection.addIceCandidate(signal);
+                }
+            });
+        };
+
+        const createPeer = async (initiator) => {
+            peerConnection = new RTCPeerConnection(servers);
+
+            peerConnection.onicecandidate = e => {
+                if (e.candidate) {
+                    socket.emit('signal', targetSocketId, e.candidate);
+                }
+            };
+
+            dataChannel = peerConnection.createDataChannel('flowers');
+            setupDataChannel();
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('signal', targetSocketId, offer);
+        };
+
+        const setupDataChannel = () => {
+            dataChannel.onopen = () => {
+                console.log('DataChannel open');
+            };
+        };
+
+        const sendFlower = flower => {
+            if (dataChannel && dataChannel.readyState === "open") {
+                console.log("📤 Sending flower:", flower);
+                dataChannel.send(flower);
+            } else {
+                console.log("❌ DataChannel not open yet");
+            }
+        };
+
+        init();
+    </script>
+
+</body>
+
+</html>
+
+
