@@ -99,12 +99,27 @@ npm start
 
 ##  Development Timeline
 ### Week 1
--Project planning and research
--Technical documentation
--User flow design
+- Project planning and research
+- Technical documentation
+- User flow design
 ### Week 2
+- WebRTC connection with QR pairing
+- Basic flower selection and rendering
+- Console logging to prove data flow
+
 ### Week 3
 ### Week 4
 ### Week 5
 
 ---
+##  AI Reflection
+
+- The first week I have used AI for the technical refinement of my idea. 
+Ask it to write my idea in a clear way, and in the format in which it looks good on the read me file.
+I have told it what I want to do and what I will use and do to use it(with links for the MD DOCUMENTATION) and Claude made it look pretty 
+Moreover I asked it to create a Weekly Planning to help me keep everything in track.
+I used Cava AI to start creating some illustrations for the overall style of the page. 
+I have also used it for research on clients/ server who/what is suppose to be who and where should their code be, because I am slow at learning new things and I get confused sometimes.
+
+- The second week I have used AI to debug because the connection was not working, once due to the incorrect const url, and my second big mistake was i forgot to .appendChild(flower);  in the setupDataChannel. These ware dumb mistakes that cost me a long time
+
