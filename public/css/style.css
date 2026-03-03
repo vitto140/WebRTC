@@ -1,0 +1,119 @@
+/* fonts */
+.gaegu-regular {
+    font-family: "Gaegu", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.sniglet-regular {
+    font-family: "Sniglet", system-ui;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.sniglet-extrabold {
+    font-family: "Sniglet", system-ui;
+    font-weight: 800;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    background-color: #FFF9BF;
+}
+
+
+.top-section {
+    background-image: url(../assets/background-hero.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.title {
+    color: #C9245A;
+    font-family: "Gaegu", sans-serif;
+    font-size: 8rem;
+}
+
+.middle-section {
+    background-image: url(../assets/background-div.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+    padding-top: 6.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.subtitle {
+    font-size: 6rem;
+    color: #C9245A;
+    font-family: "Gaegu", sans-serif;
+}
+
+.description {
+    font-family: "Sniglet", system-ui;
+    max-width: 45vw;
+    margin: 20px auto;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    color: #C9245A;
+}
+
+
+/* add style here when you have time */
+.qr-container {
+    margin-top: 40px;
+}
+
+.qr-container img {
+    width: 150px;
+}
+
+.bottom-section {
+    font-size: 0.9rem;
+    padding: 20px 40px;
+    color: #d63384;
+    background-image: url(../assets/background-hero.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 50vh;
+}
+
+.bottom-section div {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.bottom-section img {
+    width: 100px;
+    margin-bottom: 300px;
+}
+
+.bouquet {
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 4rem;
+    pointer-events: none;
+}
+
+/* second desktop page */
+.page-after {
+    display: none;
+}
+
+
+/* mobile  */
