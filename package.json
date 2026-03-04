@@ -1,0 +1,24 @@
+{
+  "name": "wbrcts-ass",
+  "version": "1.0.0",
+  "description": "**LoveYours** is a real-time collaborative web application that allows users to create and send personalized digital flower bouquets.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitto140/WebRTC.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vitto140/WebRTC/issues"
+  },
+  "homepage": "https://github.com/vitto140/WebRTC#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}

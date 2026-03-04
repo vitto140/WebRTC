@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoveYOURS CONTROLLER</title>
 </head>
-
 <body>
 
     <h1>Phone Controller</h1>
@@ -14,7 +13,6 @@
     <button onclick="sendFlower('🌻')">Sunflower</button>
 
     <script src="/socket.io/socket.io.js"></script>
-
     <script>
         let socket;
         let peerConnection;
@@ -49,9 +47,9 @@
                 console.log('Received signal from', fromId);
 
                 if (signal.type === 'answer') {
-                    await peerConnection.setRemoteDescription(signal);
-                } else {
-                    await peerConnection.addIceCandidate(signal);
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+                } else if (signal.candidate) {  // <-- ADD THIS CHECK
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
                 }
             });
         };
@@ -90,7 +88,6 @@
 
         init();
     </script>
-
 </body>
 
 </html>

@@ -19,6 +19,8 @@ The connection between devices is established using a **QR code pairing system**
 
 ##  How It Works (Architecture Overview)
 
+PLEASE LOOK AT MY DIARY https://www.figma.com/board/zS6EDmdmtjWqm5HzuJ4ACg/CC4-DIARY?node-id=0-1&t=rhjQLejusCXPl1Rd-1
+
 LoveYours uses a hybrid architecture combining WebRTC and WebSockets.
 
 ###  WebRTC (Peer-to-Peer)
