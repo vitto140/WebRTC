@@ -4,15 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
+
+    <link rel="shortcut icon" href="assets/logo-ly.png" type="image/x-icon">
     <title>LoveYours</title>
 </head>
 <body>
-    <h1>LOVE YOURS</h1>
-    <p id="url"></p>
-    <div id="qr"></div>
+    <div class="page">
+    
+        <div class="top-section">
+            <h1 class="title">LOVE YOURS</h1>
+        </div>
+    
+        <div class="middle-section">
+            <h2 class="subtitle">DIGITAL FLOWER SHOP</h2>
+    
+            <p class="description">
+                Create your own bouquet of flowers. User will scan the QR Code. On the
+                “bigger screen” an empty vase will appear. On the device that scanned
+                the QR code various options appear to personalize the bouquet.
+            </p>
+    
 
-    <h2>Bouquet</h2>
-    <div id="bouquet" style="font-size: 3rem;"></div>
+          
+            <div id="qr" class="qr-container"></div>
+
+            
+        </div>
+    
+        <div class="bottom-section">
+            <img src="assets/logo-ly.png" alt="Logo">
+            <div>
+                <p>© 2026 Creative Code – Vittoria Romano</p>
+                <p>March 2026, Belgium</p>
+            </div>
+            
+        </div>
+    
+    </div>
+    
+    <div class="page-after">
+        <h2 class="title">YOUR BOUQUET</h2>
+        <div id="bouquet" class="bouquet"></div>
+
+    </div>
+    
+    
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -27,18 +68,14 @@
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         };
 
-        const $bouquet = document.getElementById('bouquet');
-        const $url = document.getElementById('url');
-
         const init = () => {
             socket = io.connect('/');
 
             socket.on('connect', () => {
                 console.log('Connected:', socket.id);
-
-                const url = `http://192.168.9.236:3000/controller.html?id=${socket.id}`;
-                $url.textContent = url;
-
+               
+                // const url = `http://192.168.9.236:3000/controller.html?id=${socket.id}`;
+                const url = `http://172.30.97.58:3000/controller.html?id=${socket.id}`;
                 const qr = qrcode(4, 'L');
                 qr.addData(url);
                 qr.make();
@@ -62,11 +99,11 @@
                 } else if (signal.type === 'answer') {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
 
-                } else {
+                } else if (signal.candidate) {  // <-- ADD THIS CHECK
                     await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
                 }
             });
-             
+
             socket.on('peer-disconnected', (id) => {
                 console.log('Peer disconnected:', id);
                 peerConnection = null;
@@ -76,14 +113,27 @@
         const createPeer = (initiator) => {
             peerConnection = new RTCPeerConnection(servers);
 
+            // ADD THESE LOGS:
+            peerConnection.onconnectionstatechange = () => {
+                console.log('🔌 Connection state:', peerConnection.connectionState);
+            };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                console.log('🧊 ICE state:', peerConnection.iceConnectionState);
+            };
+
             peerConnection.onicecandidate = e => {
                 if (e.candidate) {
+                    console.log('🧊 Sending ICE candidate');
                     socket.emit('signal', targetSocketId, e.candidate);
+                } else {
+                    console.log('🧊 All ICE candidates sent');
                 }
             };
 
             if (!initiator) {
                 peerConnection.ondatachannel = e => {
+                    console.log('🎉 DataChannel received!');
                     dataChannel = e.channel;
                     setupDataChannel();
                 };
@@ -93,11 +143,15 @@
         const setupDataChannel = () => {
             dataChannel.onopen = () => {
                 console.log("✅ Desktop: DataChannel OPEN");
+                
+                document.querySelector('.page').style.display = 'none';
+                document.querySelector('.page-after').style.display = 'block';
             };
 
             dataChannel.onmessage = e => {
                 console.log("🌸 Desktop received flower:", e.data);
 
+                const bouquetContainer = document.getElementById("bouquet");
                 const flower = document.createElement("span");
                 flower.textContent = e.data;
                 flower.style.fontSize = "4rem";
@@ -106,6 +160,7 @@
                 document.getElementById("bouquet").appendChild(flower);
             };
         };
+        
 
         init();
     </script>
