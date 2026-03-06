@@ -50,6 +50,7 @@
     <div class="page-after">
         <h2 class="title">YOUR BOUQUET</h2>
         <div id="bouquet" class="bouquet"></div>
+        <img src="assets/vase.png" alt="vase" class="vase">
 
     </div>
     
@@ -73,9 +74,9 @@
 
             socket.on('connect', () => {
                 console.log('Connected:', socket.id);
-               
-                // const url = `http://192.168.9.236:3000/controller.html?id=${socket.id}`;
-                const url = `http://172.30.97.58:3000/controller.html?id=${socket.id}`;
+
+                const url = `http://192.168.9.236:3000/controller.html?id=${socket.id}`;
+                //const url = `http://172.30.97.58:3000/controller.html?id=${socket.id}`;
                 const qr = qrcode(4, 'L');
                 qr.addData(url);
                 qr.make();
@@ -99,7 +100,7 @@
                 } else if (signal.type === 'answer') {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
 
-                } else if (signal.candidate) {  // <-- ADD THIS CHECK
+                } else if (signal.candidate) {  
                     await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
                 }
             });
@@ -113,7 +114,7 @@
         const createPeer = (initiator) => {
             peerConnection = new RTCPeerConnection(servers);
 
-            // ADD THESE LOGS:
+           //LOGS
             peerConnection.onconnectionstatechange = () => {
                 console.log('🔌 Connection state:', peerConnection.connectionState);
             };
@@ -152,9 +153,14 @@
                 console.log("🌸 Desktop received flower:", e.data);
 
                 const bouquetContainer = document.getElementById("bouquet");
-                const flower = document.createElement("span");
-                flower.textContent = e.data;
-                flower.style.fontSize = "4rem";
+                 if (bouquetContainer.children.length > 0) {
+                    bouquetContainer.innerHTML = ''; 
+                }
+
+                const flower = document.createElement("img");
+                flower.src = e.data;
+                flower.style.width = "300px";
+                flower.style.height = "300px";
                 flower.style.margin = "10px";
 
                 document.getElementById("bouquet").appendChild(flower);

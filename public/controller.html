@@ -8,19 +8,38 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
 
     <link rel="shortcut icon" href="assets/logo-ly.png" type="image/x-icon">
     <title>LoveYours</title>
 </head>
-<body>
 
-    <h1>Phone Controller</h1>
-    
-    <button onclick="sendFlower('🌹')">Rose</button>
-    <button onclick="sendFlower('🌻')">Sunflower</button>
+<body class="controller-body">
 
+    <div class="controller-container">
+
+        <!-- Flower Picker Section -->
+        <div class="flower-section">
+            <h2 class="controller-title">PICK THE FLOWERS</h2>
+
+            <div class="carousel">
+                <button class="carousel-btn prev" onclick="changeFlower(-1)">
+                    <span>&lt;</span>
+                </button>
+
+                <div class="flower-display">
+                    <img id="currentFlower" src="assets/flower1.png" alt="Flower" class="flower-img">
+                </div>
+
+                <button class="carousel-btn next" onclick="changeFlower(1)">
+                    <span>&gt;</span>
+                </button>
+            </div>
+
+            <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
+        </div>
+
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         let socket;
@@ -31,6 +50,24 @@
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         };
+        // Flower carousel
+        const flowers = [
+            { name: 'tulip', img: 'assets/flower1.png' },
+            { name: 'rose', img: 'assets/flower2.png' },
+            { name: 'sunflower',img: 'assets/flower3.png' }
+        ];
+        let currentFlowerIndex = 0;
+
+        const changeFlower = (direction) => {
+            currentFlowerIndex = (currentFlowerIndex + direction + flowers.length) % flowers.length;
+            document.getElementById('currentFlower').src = flowers[currentFlowerIndex].img;
+        };
+
+        const addCurrentFlower = () => {
+            const flower = flowers[currentFlowerIndex];
+            sendFlower(flower.img);
+        };
+
 
         const getUrlParameter = name => {
             const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -57,7 +94,7 @@
 
                 if (signal.type === 'answer') {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
-                } else if (signal.candidate) {  // <-- ADD THIS CHECK
+                } else if (signal.candidate) {
                     await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
                 }
             });
@@ -100,5 +137,3 @@
 </body>
 
 </html>
-
-
