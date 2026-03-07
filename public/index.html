@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,53 +9,51 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap"
+        rel="stylesheet">
 
     <link rel="shortcut icon" href="assets/logo-ly.png" type="image/x-icon">
     <title>LoveYours</title>
 </head>
+
 <body>
     <div class="page">
-    
+
         <div class="top-section">
             <h1 class="title">LOVE YOURS</h1>
         </div>
-    
+
         <div class="middle-section">
             <h2 class="subtitle">DIGITAL FLOWER SHOP</h2>
-    
+
             <p class="description">
                 Create your own bouquet of flowers. User will scan the QR Code. On the
                 “bigger screen” an empty vase will appear. On the device that scanned
                 the QR code various options appear to personalize the bouquet.
             </p>
-    
 
-          
+
+
             <div id="qr" class="qr-container"></div>
 
-            
+
         </div>
-    
+
         <div class="bottom-section">
             <img src="assets/logo-ly.png" alt="Logo">
             <div>
                 <p>© 2026 Creative Code – Vittoria Romano</p>
                 <p>March 2026, Belgium</p>
             </div>
-            
         </div>
-    
     </div>
-    
+
     <div class="page-after">
         <h2 class="title">YOUR BOUQUET</h2>
         <div id="bouquet" class="bouquet"></div>
+        <img src="assets/vase.png" alt="vase" class="vase">
 
     </div>
-    
-    
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 
@@ -73,9 +72,9 @@
 
             socket.on('connect', () => {
                 console.log('Connected:', socket.id);
-               
-                // const url = `http://192.168.9.236:3000/controller.html?id=${socket.id}`;
-                const url = `http://172.30.97.58:3000/controller.html?id=${socket.id}`;
+
+                const url = `https://192.168.9.236:3000/controller.html?id=${socket.id}`;
+                //const url = `http://172.30.97.58:3000/controller.html?id=${socket.id}`;
                 const qr = qrcode(4, 'L');
                 qr.addData(url);
                 qr.make();
@@ -99,7 +98,7 @@
                 } else if (signal.type === 'answer') {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
 
-                } else if (signal.candidate) {  // <-- ADD THIS CHECK
+                } else if (signal.candidate) {
                     await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
                 }
             });
@@ -113,7 +112,7 @@
         const createPeer = (initiator) => {
             peerConnection = new RTCPeerConnection(servers);
 
-            // ADD THESE LOGS:
+            //LOGS
             peerConnection.onconnectionstatechange = () => {
                 console.log('🔌 Connection state:', peerConnection.connectionState);
             };
@@ -143,7 +142,7 @@
         const setupDataChannel = () => {
             dataChannel.onopen = () => {
                 console.log("✅ Desktop: DataChannel OPEN");
-                
+
                 document.querySelector('.page').style.display = 'none';
                 document.querySelector('.page-after').style.display = 'block';
             };
@@ -151,18 +150,76 @@
             dataChannel.onmessage = e => {
                 console.log("🌸 Desktop received flower:", e.data);
 
-                const bouquetContainer = document.getElementById("bouquet");
-                const flower = document.createElement("span");
-                flower.textContent = e.data;
-                flower.style.fontSize = "4rem";
-                flower.style.margin = "10px";
+                let message;
+                try {
+                    message = JSON.parse(e.data);
+                } catch {
+                    message = { type: 'flower', data: e.data };
+                }
 
-                document.getElementById("bouquet").appendChild(flower);
+                if (message.type === 'voice') {
+                    // Handle voice message
+                    console.log("🎤 Voice message received");
+                    playVoiceMessage(message.data);
+                } else {
+
+                    const bouquetContainer = document.getElementById("bouquet");
+                    if (bouquetContainer.children.length > 0) {
+                        bouquetContainer.innerHTML = '';
+                    }
+
+                    const flower = document.createElement("img");
+                    flower.src = e.data;
+                    flower.style.width = "300px";
+                    flower.style.height = "300px";
+                    flower.style.margin = "10px";
+
+                    document.getElementById("bouquet").appendChild(flower);
+                }
             };
         };
-        
+
+        const playVoiceMessage = base64Audio => {
+            const audioBlob = base64ToBlob(base64Audio, 'audio/webm');
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+            console.log("🔊 Playing voice message");
+
+            // Show message indicator on screen
+            const messageIndicator = document.createElement('div');
+            messageIndicator.textContent = '🎤 Voice Message Received';
+            messageIndicator.style.position = 'fixed';
+            messageIndicator.style.top = '20px';
+            messageIndicator.style.right = '20px';
+            messageIndicator.style.background = '#ff6b9d';
+            messageIndicator.style.color = 'white';
+            messageIndicator.style.padding = '20px';
+            messageIndicator.style.borderRadius = '15px';
+            messageIndicator.style.fontSize = '1.5rem';
+            messageIndicator.style.fontFamily = 'Sniglet, cursive';
+            messageIndicator.style.zIndex = '9999';
+
+            document.body.appendChild(messageIndicator);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                messageIndicator.remove();
+            }, 3000);
+        };
+
+        const base64ToBlob = (base64, mimeType) => {
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            return new Blob([byteArray], { type: mimeType });
+        };
 
         init();
     </script>
 </body>
+
 </html>

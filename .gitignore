@@ -189,3 +189,10 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+## 6. Create `.gitignore`:
+```
+*.crt
+*.key
+.env
+node_modules

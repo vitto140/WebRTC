@@ -5,13 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoveYOURS CONTROLLER</title>
 </head>
-<body>
 
-    <h1>Phone Controller</h1>
-    
-    <button onclick="sendFlower('🌹')">Rose</button>
-    <button onclick="sendFlower('🌻')">Sunflower</button>
+<body class="controller-body">
 
+    <div class="controller-container">
+
+        <!-- Flower Picker Section -->
+        <div class="flower-section">
+            <h2 class="controller-title">PICK THE FLOWERS</h2>
+
+            <div class="carousel">
+                <button class="carousel-btn prev" onclick="changeFlower(-1)">
+                    <span>&lt;</span>
+                </button>
+
+                <div class="flower-display">
+                    <img id="currentFlower" src="assets/flower1.png" alt="Flower" class="flower-img">
+                </div>
+
+                <button class="carousel-btn next" onclick="changeFlower(1)">
+                    <span>&gt;</span>
+                </button>
+            </div>
+            <div class="message-section">
+                <h2 class="controller-title">LEAVE A MESSAGE</h2>
+            
+                <div class="voice-controls">
+                    <button class="voice-btn" id="startBtn">START</button>
+                    <button class="voice-btn" id="stopBtn">STOP</button>
+                </div>
+            
+                <div class="waveform">
+                <!-- Waveform visualization (optional for later) -->
+                </div>
+            
+                <button class="done-btn">DONE!</button>
+            </div>
+
+
+            <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
+        </div>
+
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         let socket;
@@ -22,12 +57,95 @@
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         };
+        // Flower carousel
+        const flowers = [
+            { name: 'tulip', img: 'assets/flower1.png' },
+            { name: 'rose', img: 'assets/flower2.png' },
+            { name: 'sunflower',img: 'assets/flower3.png' }
+        ];
+        let currentFlowerIndex = 0;
+
+        const changeFlower = (direction) => {
+            currentFlowerIndex = (currentFlowerIndex + direction + flowers.length) % flowers.length;
+            document.getElementById('currentFlower').src = flowers[currentFlowerIndex].img;
+        };
+
+        const addCurrentFlower = () => {
+            const flower = flowers[currentFlowerIndex];
+            sendFlower(flower.img);
+        };
+
 
         const getUrlParameter = name => {
             const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
             const results = regex.exec(location.search);
             return results === null ? false : decodeURIComponent(results[1]);
         };
+        // Voice recording variables
+            let mediaRecorder;
+            let audioChunks = [];
+            let isRecording = false;
+
+            const startRecording = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = e => {
+                        audioChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64Audio = reader.result.split(',')[1];
+                            sendVoiceMessage(base64Audio);
+                        };
+                        reader.readAsDataURL(audioBlob);
+
+                        // Stop all tracks
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    console.log('🎤 Recording started');
+
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+
+                } catch (error) {
+                    console.error('❌ Microphone error:', error);
+                    alert('Could not access microphone');
+                }
+            };
+
+            const stopRecording = () => {
+                if (mediaRecorder && isRecording) {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    console.log('🛑 Recording stopped');
+
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                }
+            };
+
+            const sendVoiceMessage = voiceData => {
+                if (dataChannel && dataChannel.readyState === "open") {
+                    console.log("📤 Sending voice message");
+                    const message = JSON.stringify({
+                        type: 'voice',
+                        data: voiceData
+                    });
+                    dataChannel.send(message);
+                } else {
+                    console.log("❌ DataChannel not open");
+                    alert('Not connected yet!');
+                }
+            };
 
         const init = async () => {
             targetSocketId = getUrlParameter('id');
@@ -48,10 +166,15 @@
 
                 if (signal.type === 'answer') {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
-                } else if (signal.candidate) {  // <-- ADD THIS CHECK
+                } else if (signal.candidate) {
                     await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
                 }
             });
+
+            // voice button listeners
+            document.getElementById('startBtn').addEventListener('click', startRecording);
+            document.getElementById('stopBtn').addEventListener('click', stopRecording);
+            document.getElementById('stopBtn').disabled = true;
         };
 
         const createPeer = async (initiator) => {
@@ -91,5 +214,3 @@
 </body>
 
 </html>
-
-

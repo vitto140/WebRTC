@@ -40,6 +40,7 @@ body {
     color: #C9245A;
     font-family: "Gaegu", sans-serif;
     font-size: 8rem;
+    text-align: center;
 }
 
 .middle-section {
@@ -71,7 +72,7 @@ body {
 }
 
 
-/* add style here when you have time */
+/* add style here when you have time crying inside this is harder than i thought*/
 .qr-container {
     margin-top: 40px;
 }
@@ -113,7 +114,188 @@ body {
 /* second desktop page */
 .page-after {
     display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.vase{
+    align-items: center;
+    justify-content: center;
 }
 
 
 /* mobile  */
+
+.controller-body {
+    background: url(../assets/background-div.png);
+    background-size: cover;
+    background-color: #FFF9BF;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    font-family: 'Sniglet', system-ui;
+}
+
+.controller-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.controller-title {
+    color: #d81b60;
+    font-size: 35px;
+    text-align: center;
+    margin: 30px 0 20px;
+    font-family: 'Gaegu', cursive;
+}
+
+/* Flower Section  */
+.flower-section {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    padding: 30px 20px;
+    margin-bottom: 30px;
+}
+
+.carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.flower-display {
+    width: 200px;
+    height: 200px;
+    background: #FFF69E;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(206, 143, 5, 0.1);
+}
+
+.flower-img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+
+.carousel-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ffb6d9;
+    border: none;
+    font-size: 2em;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn:active {
+    transform: scale(0.95);
+}
+
+.add-flower-btn {
+    width: 100%;
+    padding: 15px;
+    background: #d81b60;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.2em;
+    font-family: 'Sniglet', system-ui;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.add-flower-btn:active {
+    transform: scale(0.98);
+}
+
+.done-btn {
+    width: 100%;
+    padding: 20px;
+    background: #d81b60;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.3em;
+    font-family: 'Sniglet', cursive;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.done-btn:active {
+    transform: scale(0.98);
+}
+
+
+/* Bouquet positioning  D*/
+
+.page-after {
+    display: none;
+    min-height: 100vh;
+    background-image: url(../assets/background-div.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.page-after .title {
+    padding-top: 50px;
+    margin-bottom: 50px;
+}
+
+/* Vase positioning */
+.vase {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    z-index: 1;
+}
+
+#bouquet {
+    position: fixed;
+    bottom: 470px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    z-index: 2;
+    height: 350px;
+}
+
+#bouquet img {
+    width: 200px;
+    height: 200px;
+    margin: -20px 0;
+    animation: bloom 0.5s ease-out;
+}
+
+#bouquet img:first-child {
+    margin-top: 0;
+}
+
+@keyframes bloom {
+    from {
+        transform: scale(0) translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
