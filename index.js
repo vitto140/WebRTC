@@ -1,7 +1,17 @@
+require('dotenv').config();
+const isDevelopment = (process.env.NODE_ENV === 'development');
 const express = require('express');
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
+const fs = require('fs');
+
+let options = {};
+if (isDevelopment) {
+    options = {
+        key: fs.readFileSync('./localhost.key'),
+        cert: fs.readFileSync('./localhost.crt')
+    };
+}
+const server = require(isDevelopment ? 'https' : 'http').Server(options, app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
