@@ -99,7 +99,7 @@ npm start
  ```
 --- 
 
-##  Development Timeline
+##  Development Ideal Timeline 
 ### Week 1
 - Project planning and research
 - Technical documentation
@@ -110,10 +110,47 @@ npm start
 - Console logging to prove data flow
 
 ### Week 3
-### Week 4
-### Week 5
+- Complete UI design (phone + desktop)
+- Voice message recording and playback
+- Live text synchronization
+- Email sending functionality
 
+### Week 4
+- Live text synchronization
+- Polish animations and transitions
+- Final testing and bug fixes
+
+### Week 5
+- Implement 1-2 bonus features
+- Performance optimization
+- Comprehensive README update
 ---
+
+## What I followed from the Plan
+
+### Week 1
+- Project planning and research
+- Created technical documentation and user flow diagrams
+- Defined project concept: phone-controlled bouquet creator using WebRTC
+- Set up initial project structure with Express server and static files
+
+### Week 2
+- Implemented WebSocket signalling server with Socket.io for peer discovery
+- Established WebRTC peer-to-peer data channel communication
+- Created QR code pairing system for seamless phone-desktop connection
+- Built flower carousel on phone controller with real-time rendering on desktop
+- Debugged ICE candidate exchange and connection state issues
+- Successfully tested flower selection sending from phone to desktop display
+
+### Week 3
+- Designed and implemented complete UI for both phone controller and desktop display
+- Integrated voice message recording using MediaRecorder API
+- **Got stuck:** iOS Safari blocked microphone access due to HTTP security restrictions
+- Configured HTTPS with self-signed SSL certificates (OpenSSL) for development
+- Updated server to use conditional HTTPS/HTTP based on environment (dotenv)
+- Successfully implemented voice recording, transmission via WebRTC, and automatic playback on desktop
+- Added Nodemailer integration for email delivery functionality
+- **Current issue:** Page no longer loads on phone after SSL certificate changes - debugging connection/certificate acceptance flow
 ##  AI Reflection
 
 - The first week I have used AI for the technical refinement of my idea. 
