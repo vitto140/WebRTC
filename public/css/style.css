@@ -242,6 +242,7 @@ body {
 
 .page-after {
     display: none;
+    
     min-height: 100vh;
     background-image: url(../assets/background-div.png);
     background-size: cover;

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
     <title>LoveYOURS CONTROLLER</title>
 </head>
 
@@ -31,18 +32,11 @@
                 <h2 class="controller-title">LEAVE A MESSAGE</h2>
             
                 <div class="voice-controls">
-                    <button class="voice-btn" id="startBtn">START</button>
-                    <button class="voice-btn" id="stopBtn">STOP</button>
+                    <button class="voice-btn add-flower-btn" id="startBtn">START</button>
+                    <button class="voice-btn add-flower-btn" id="stopBtn">STOP</button>
+                    <button class="voice-btn add-flower-btn" onclick="playVoice()">PLAY</button>
                 </div>
-            
-                <div class="waveform">
-                <!-- Waveform visualization (optional for later) -->
-                </div>
-            
-                <button class="done-btn">DONE!</button>
             </div>
-
-
             <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
         </div>
 
@@ -132,6 +126,15 @@
                     document.getElementById('stopBtn').disabled = true;
                 }
             };
+            const playVoice = () => {
+                    if (dataChannel && dataChannel.readyState === "open") {
+                        const message = JSON.stringify({
+                            type: "play"
+                        });
+                        dataChannel.send(message);
+                        console.log("▶️ Play command sent");
+                    }
+                };
 
             const sendVoiceMessage = voiceData => {
                 if (dataChannel && dataChannel.readyState === "open") {
@@ -186,8 +189,10 @@
                 }
             };
 
-            dataChannel = peerConnection.createDataChannel('flowers');
-            setupDataChannel();
+            if (initiator) {
+                dataChannel = peerConnection.createDataChannel('flowers');
+                setupDataChannel();
+            }
 
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
