@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,6 +61,7 @@
         let peerConnection;
         let dataChannel;
         let targetSocketId;
+        let storedVoiceMessage = null;
 
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
@@ -73,8 +73,7 @@
             socket.on('connect', () => {
                 console.log('Connected:', socket.id);
 
-                const url = `https://192.168.9.236:3000/controller.html?id=${socket.id}`;
-                //const url = `http://172.30.97.58:3000/controller.html?id=${socket.id}`;
+                const url = `${window.location.protocol}//${window.location.host}/controller.html?id=${socket.id}`;
                 const qr = qrcode(4, 'L');
                 qr.addData(url);
                 qr.make();
@@ -105,13 +104,24 @@
 
             socket.on('peer-disconnected', (id) => {
                 console.log('Peer disconnected:', id);
+                if (peerConnection) {
+                    peerConnection.onconnectionstatechange = null;
+                    peerConnection.oniceconnectionstatechange = null;
+                    peerConnection.onicecandidate = null;
+                }
                 peerConnection = null;
             });
         };
 
         const createPeer = (initiator) => {
             peerConnection = new RTCPeerConnection(servers);
-
+            if (!initiator) {
+                peerConnection.ondatachannel = e => {
+                    console.log('🎉 DataChannel received!');
+                    dataChannel = e.channel;
+                    setupDataChannel();
+                };
+            }
             //LOGS
             peerConnection.onconnectionstatechange = () => {
                 console.log('🔌 Connection state:', peerConnection.connectionState);
@@ -161,6 +171,17 @@
                     // Handle voice message
                     console.log("🎤 Voice message received");
                     playVoiceMessage(message.data);
+                } if (message.type === 'voice') {
+                    console.log("🎤 Voice message stored");
+                    storedVoiceMessage = message.data;
+                }
+
+                else if (message.type === 'play') {
+                    console.log("▶️ Play command received");
+
+                    if (storedVoiceMessage) {
+                        playVoiceMessage(storedVoiceMessage);
+                    }
                 } else {
 
                     const bouquetContainer = document.getElementById("bouquet");
@@ -179,6 +200,8 @@
             };
         };
 
+        
+            
         const playVoiceMessage = base64Audio => {
             const audioBlob = base64ToBlob(base64Audio, 'audio/webm');
             const audioUrl = URL.createObjectURL(audioBlob);
@@ -217,6 +240,13 @@
             const byteArray = new Uint8Array(byteNumbers);
             return new Blob([byteArray], { type: mimeType });
         };
+        const enableAudioBtn = document.getElementById('enableAudioBtn');
+            if (enableAudioBtn) {
+                enableAudioBtn.addEventListener('click', () => {
+                    enableAudioBtn.style.display = 'none';
+                    console.log('✅ Audio enabled');
+                });
+            }
 
         init();
     </script>

@@ -3,6 +3,7 @@ const isDevelopment = (process.env.NODE_ENV === 'development');
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const { networkInterfaces } = require('os');
 
 const nodemailer = require("nodemailer");
 
@@ -31,6 +32,13 @@ const io = new Server(server);
 
 const port = 3000;
 
+const nets = networkInterfaces();
+const addresses = Object.values(nets)
+    .flat()
+    .filter(net => net.family === 'IPv4' && !net.internal)
+    .map(net => net.address);
+
+
 app.use(express.static('public'));
 
 const users = {};
@@ -52,26 +60,9 @@ io.on('connection', socket => {
     });
 });
 
-
-//email sending example
-(async () => {
-    try {
-        const info = await transporter.sendMail({
-            from: '"Example Team" <team@example.com>', // sender address
-            to: "alice@example.com, bob@example.com", // list of recipients
-            subject: "Hello", // subject line
-            text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // HTML body
-        });
-
-        console.log("Message sent: %s", info.messageId);
-        // Preview URL is only available when using an Ethereal test account
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    } catch (err) {
-        console.error("Error while sending mail", err);
-    }
-})();
-
-server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+server.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on https://localhost:${port}`);
+    addresses.forEach(address => {
+        console.log(`📱 Phone: https://${address}:${port}`);
+    });
 });
