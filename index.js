@@ -5,6 +5,20 @@ const app = express();
 const fs = require('fs');
 const { networkInterfaces } = require('os');
 
+const nodemailer = require("nodemailer");
+
+// transporter using SMTP
+const transporter = nodemailer.createTransport({
+    host: "smtp.example.com",
+    port: 587,
+    secure: false, 
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
+
+
 let options = {};
 if (isDevelopment) {
     options = {
