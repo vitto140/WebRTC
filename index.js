@@ -7,15 +7,43 @@ const { networkInterfaces } = require('os');
 
 const nodemailer = require("nodemailer");
 
-// transporter using SMTP
 const transporter = nodemailer.createTransport({
-    host: "smtp.example.com",
+    host: "smtp.gmail.com",
     port: 587,
-    secure: false, 
+    secure: false,
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
+});
+
+app.use(express.json());
+
+app.post('/send-email', async (req, res) => {
+    console.log(req.body);
+    try {
+        const { recipient, message } = req.body;
+
+        const info = await transporter.sendMail({
+            from: '"LoveYours 💐" <noreply@loveyours.com>',
+            to: recipient,
+            subject: "Someone sent you a bouquet! 💐",
+            text: message || "You received a beautiful bouquet!",
+            html: `
+        <div style="font-family: Arial, sans-serif; text-align: center; padding: 40px;">
+          <h1 style="color: #ff6b9d;">💐 You received a bouquet!</h1>
+          <p style="font-size: 18px;">${message || "Someone sent you flowers!"}</p>
+        </div>
+      `,
+        });
+
+        console.log("✉️ Email sent:", info.messageId);
+        res.json({ success: true, messageId: info.messageId });
+
+    } catch (err) {
+        console.error("❌ Email error:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
 

@@ -35,8 +35,18 @@
                     <button class="voice-btn add-flower-btn" id="startBtn">START</button>
                     <button class="voice-btn add-flower-btn" id="stopBtn">STOP</button>
                     <button class="voice-btn add-flower-btn" onclick="playVoice()">PLAY</button>
+                    <button class="add-flower-btn" id="doneBtn" onclick="showEmailForm()">DONE!</button>
+                </div>
+
+                <div id="emailForm" style="display: none; margin-top: 20px;">
+                    <input type="email" id="recipientEmail" placeholder="Recipient's email"
+                        style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d;">
+                    <textarea id="messageText" placeholder="Add a personal message (optional)"
+                        style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d; min-height: 80px;"></textarea>
+                    <button class="add-flower-btn" onclick="sendEmail()">SEND</button>
                 </div>
             </div>
+
             <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
         </div>
 
@@ -213,6 +223,56 @@
                 console.log("❌ DataChannel not open yet");
             }
         };
+
+        const showEmailForm = () => {
+                document.getElementById('emailForm').style.display = 'block';
+                document.getElementById('doneBtn').style.display = 'none';
+            };
+
+            const sendEmail = async () => {
+                const email = document.getElementById('recipientEmail').value;
+                const message = document.getElementById('messageText').value;
+
+                if (!email) {
+                    alert('Please enter an email address');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            recipient: email,
+                            message: message
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Notify desktop to show "sent" page
+                        if (dataChannel && dataChannel.readyState === "open") {
+                            dataChannel.send(JSON.stringify({ type: 'email-sent' }));
+                        }
+
+                        // Show success message on phone
+                        document.body.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Sniglet', cursive; color: #ff6b9d;">
+                    <h1 style="font-size: 3rem;">✉️ Sent!</h1>
+                    <p style="font-size: 1.5rem;">Your bouquet has been delivered</p>
+                </div>
+            `;
+                    } else {
+                        alert('Failed to send email. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to send email. Please try again.');
+                }
+            };
 
         init();
     </script>
