@@ -22,7 +22,37 @@ app.use(express.json());
 app.post('/send-email', async (req, res) => {
     console.log(req.body);
     try {
-        const { recipient, message } = req.body;
+        const { recipient, message, flowers, voiceNote } = req.body;
+
+        const attachments = [];
+        let flowersHTML = '';
+        if (flowers && flowers.length > 0) {
+            flowers.forEach((flowerPath, index) => {
+                const cid = `flower${index}@loveyours.com`;
+
+                // Add to attachments
+                attachments.push({
+                    filename: `flower${index}.png`,
+                    path: `./public/${flowerPath}`,
+                    cid: cid
+                });
+
+                // Reference in HTML using cid
+                flowersHTML += `<img src="cid:${cid}" style="width: 100px; height: 100px; margin: 5px;" alt="Flower">`;
+            });
+        }
+
+        // Voice note HTML (link to play)
+        let voiceHTML = '';
+        if (voiceNote) {
+            const voiceBuffer = Buffer.from(voiceNote, 'base64');
+            attachments.push({
+                filename: 'voice-message.webm',
+                content: voiceBuffer,
+                contentType: 'audio/webm'
+            });
+            voiceHTML = `<p>🎤 Voice message attached (check attachments)</p>`;
+        }
 
         const info = await transporter.sendMail({
             from: '"LoveYours 💐" <noreply@loveyours.com>',
@@ -33,8 +63,14 @@ app.post('/send-email', async (req, res) => {
         <div style="font-family: Arial, sans-serif; text-align: center; padding: 40px;">
           <h1 style="color: #ff6b9d;">💐 You received a bouquet!</h1>
           <p style="font-size: 18px;">${message || "Someone sent you flowers!"}</p>
+            <div style="margin: 20px 0;">
+                ${flowersHTML}
+            </div>
+            ${voiceHTML}
         </div>
+
       `,
+            attachments: attachments
         });
 
         console.log("✉️ Email sent:", info.messageId);
