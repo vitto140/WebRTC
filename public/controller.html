@@ -1,56 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
     <title>LoveYOURS CONTROLLER</title>
 </head>
-
 <body class="controller-body">
-
     <div class="controller-container">
-
         <!-- Flower Picker Section -->
         <div class="flower-section">
             <h2 class="controller-title">PICK THE FLOWERS</h2>
-
             <div class="carousel">
                 <button class="carousel-btn prev" onclick="changeFlower(-1)">
                     <span>&lt;</span>
                 </button>
-
                 <div class="flower-display">
                     <img id="currentFlower" src="assets/flower1.png" alt="Flower" class="flower-img">
                 </div>
-
                 <button class="carousel-btn next" onclick="changeFlower(1)">
                     <span>&gt;</span>
                 </button>
             </div>
             <div class="message-section">
                 <h2 class="controller-title">LEAVE A MESSAGE</h2>
-
+                <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
                 <div class="voice-controls">
                     <button class="voice-btn add-flower-btn" id="startBtn">START</button>
                     <button class="voice-btn add-flower-btn" id="stopBtn">STOP</button>
                     <button class="voice-btn add-flower-btn" onclick="playVoice()">PLAY</button>
-                    <button class="add-flower-btn" id="doneBtn" onclick="showEmailForm()">DONE!</button>
-                </div>
-
-                <div id="emailForm" style="display: none; margin-top: 20px;">
-                    <input type="email" id="recipientEmail" placeholder="Recipient's email"
-                        style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d;">
-                    <textarea id="messageText" placeholder="Add a personal message (optional)"
-                        style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d; min-height: 80px;"></textarea>
-                    <button class="add-flower-btn" onclick="sendEmail()">SEND</button>
                 </div>
             </div>
-
-            <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
+            <div id="emailForm" style="display: none; margin-top: 20px;">
+                <input type="email" id="recipientEmail" placeholder="Recipient's email"
+                    style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d;">
+                <textarea id="messageText" placeholder="Add a personal message (optional)"
+                    style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d; min-height: 80px;"></textarea>
+                <button class="add-flower-btn" onclick="sendEmail()">SEND</button>
+            </div>
+            <button class="add-flower-btn" id="doneBtn" onclick="showEmailForm()">DONE!</button>
         </div>
-
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -152,7 +141,7 @@
 
         const sendVoiceMessage = voiceData => {
             storedVoiceData = voiceData;
-            
+
             if (dataChannel && dataChannel.readyState === "open") {
                 console.log("📤 Sending voice message");
                 const message = JSON.stringify({
@@ -268,11 +257,11 @@
 
                     // Show success message on phone
                     document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Sniglet', cursive; color: #ff6b9d;">
-                    <h1 style="font-size: 3rem;">✉️ Sent!</h1>
-                    <p style="font-size: 1.5rem;">Your bouquet has been delivered</p>
-                </div>
-            `;
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Sniglet', system-ui; color: #ff6b9d;">
+                            <h1 style="font-size: 3rem;">✉️ Sent!</h1>
+                            <p style="font-size: 1.5rem;">Your bouquet has been delivered</p>
+                        </div>
+                    `;
                 } else {
                     alert('Failed to send email. Please try again.');
                 }

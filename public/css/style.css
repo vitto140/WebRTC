@@ -229,7 +229,7 @@ body {
     border: none;
     border-radius: 15px;
     font-size: 1.3em;
-    font-family: 'Sniglet', cursive;
+    font-family: 'Sniglet', system-ui;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

@@ -23,6 +23,17 @@ PLEASE LOOK AT MY DIARY https://www.figma.com/board/zS6EDmdmtjWqm5HzuJ4ACg/CC4-D
 
 LoveYours uses a hybrid architecture combining WebRTC and WebSockets.
 
+#!/bin/bash
+CURRENT_IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1)
+echo "🔍 IP: $CURRENT_IP"
+
+openssl req -x509 -out localhost.crt -keyout localhost.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj "/CN=172.30.97.12" -extensions EXT -config <( \
+   printf "[dn]\nCN=172.30.97.12\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost,IP:172.30.97.12\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+
+echo "✅ Cert for 172.30.97.12"
+npm start
 ###  WebRTC (Peer-to-Peer)
 
 Used for:
