@@ -6,40 +6,40 @@
     <link rel="stylesheet" href="css/style.css">
     <title>LoveYOURS CONTROLLER</title>
 </head>
-
 <body class="controller-body">
-
     <div class="controller-container">
-
         <!-- Flower Picker Section -->
         <div class="flower-section">
             <h2 class="controller-title">PICK THE FLOWERS</h2>
-
             <div class="carousel">
                 <button class="carousel-btn prev" onclick="changeFlower(-1)">
                     <span>&lt;</span>
                 </button>
-
                 <div class="flower-display">
                     <img id="currentFlower" src="assets/flower1.png" alt="Flower" class="flower-img">
                 </div>
-
                 <button class="carousel-btn next" onclick="changeFlower(1)">
                     <span>&gt;</span>
                 </button>
             </div>
             <div class="message-section">
                 <h2 class="controller-title">LEAVE A MESSAGE</h2>
-            
+                <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
                 <div class="voice-controls">
                     <button class="voice-btn add-flower-btn" id="startBtn">START</button>
                     <button class="voice-btn add-flower-btn" id="stopBtn">STOP</button>
                     <button class="voice-btn add-flower-btn" onclick="playVoice()">PLAY</button>
                 </div>
             </div>
-            <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
+            <div id="emailForm" style="display: none; margin-top: 20px;">
+                <input type="email" id="recipientEmail" placeholder="Recipient's email"
+                    style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d;">
+                <textarea id="messageText" placeholder="Add a personal message (optional)"
+                    style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d; min-height: 80px;"></textarea>
+                <button class="add-flower-btn" onclick="sendEmail()">SEND</button>
+            </div>
+            <button class="add-flower-btn" id="doneBtn" onclick="showEmailForm()">DONE!</button>
         </div>
-
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -47,6 +47,8 @@
         let peerConnection;
         let dataChannel;
         let targetSocketId;
+        let selectedFlowers = [];  
+        let storedVoiceData = null;
 
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
@@ -55,7 +57,7 @@
         const flowers = [
             { name: 'tulip', img: 'assets/flower1.png' },
             { name: 'rose', img: 'assets/flower2.png' },
-            { name: 'sunflower',img: 'assets/flower3.png' }
+            { name: 'sunflower', img: 'assets/flower3.png' }
         ];
         let currentFlowerIndex = 0;
 
@@ -66,6 +68,7 @@
 
         const addCurrentFlower = () => {
             const flower = flowers[currentFlowerIndex];
+            selectedFlowers.push(flower.img);
             sendFlower(flower.img);
         };
 
@@ -76,79 +79,81 @@
             return results === null ? false : decodeURIComponent(results[1]);
         };
         // Voice recording variables
-            let mediaRecorder;
-            let audioChunks = [];
-            let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
 
-            const startRecording = async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
+        const startRecording = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
 
-                    mediaRecorder.ondataavailable = e => {
-                        audioChunks.push(e.data);
-                    };
-
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            const base64Audio = reader.result.split(',')[1];
-                            sendVoiceMessage(base64Audio);
-                        };
-                        reader.readAsDataURL(audioBlob);
-
-                        // Stop all tracks
-                        stream.getTracks().forEach(track => track.stop());
-                    };
-
-                    mediaRecorder.start();
-                    isRecording = true;
-                    console.log('🎤 Recording started');
-
-                    document.getElementById('startBtn').disabled = true;
-                    document.getElementById('stopBtn').disabled = false;
-
-                } catch (error) {
-                    console.error('❌ Microphone error:', error);
-                    alert('Could not access microphone');
-                }
-            };
-
-            const stopRecording = () => {
-                if (mediaRecorder && isRecording) {
-                    mediaRecorder.stop();
-                    isRecording = false;
-                    console.log('🛑 Recording stopped');
-
-                    document.getElementById('startBtn').disabled = false;
-                    document.getElementById('stopBtn').disabled = true;
-                }
-            };
-            const playVoice = () => {
-                    if (dataChannel && dataChannel.readyState === "open") {
-                        const message = JSON.stringify({
-                            type: "play"
-                        });
-                        dataChannel.send(message);
-                        console.log("▶️ Play command sent");
-                    }
+                mediaRecorder.ondataavailable = e => {
+                    audioChunks.push(e.data);
                 };
 
-            const sendVoiceMessage = voiceData => {
-                if (dataChannel && dataChannel.readyState === "open") {
-                    console.log("📤 Sending voice message");
-                    const message = JSON.stringify({
-                        type: 'voice',
-                        data: voiceData
-                    });
-                    dataChannel.send(message);
-                } else {
-                    console.log("❌ DataChannel not open");
-                    alert('Not connected yet!');
-                }
-            };
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64Audio = reader.result.split(',')[1];
+                        sendVoiceMessage(base64Audio);
+                    };
+                    reader.readAsDataURL(audioBlob);
+
+                    // Stop all tracks
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                console.log('🎤 Recording started');
+
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+
+            } catch (error) {
+                console.error('❌ Microphone error:', error);
+                alert('Could not access microphone');
+            }
+        };
+
+        const stopRecording = () => {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                console.log('🛑 Recording stopped');
+
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        };
+        const playVoice = () => {
+            if (dataChannel && dataChannel.readyState === "open") {
+                const message = JSON.stringify({
+                    type: "play"
+                });
+                dataChannel.send(message);
+                console.log("▶️ Play command sent");
+            }
+        };
+
+        const sendVoiceMessage = voiceData => {
+            storedVoiceData = voiceData;
+
+            if (dataChannel && dataChannel.readyState === "open") {
+                console.log("📤 Sending voice message");
+                const message = JSON.stringify({
+                    type: 'voice',
+                    data: voiceData
+                });
+                dataChannel.send(message);
+            } else {
+                console.log("❌ DataChannel not open");
+                alert('Not connected yet!');
+            }
+        };
 
         const init = async () => {
             targetSocketId = getUrlParameter('id');
@@ -211,6 +216,58 @@
                 dataChannel.send(flower);
             } else {
                 console.log("❌ DataChannel not open yet");
+            }
+        };
+
+        const showEmailForm = () => {
+            document.getElementById('emailForm').style.display = 'block';
+            document.getElementById('doneBtn').style.display = 'none';
+        };
+
+        const sendEmail = async () => {
+            const email = document.getElementById('recipientEmail').value;
+            const message = document.getElementById('messageText').value;
+
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+
+            try {
+                const response = await fetch('/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        recipient: email,
+                        message: message,
+                        flowers: selectedFlowers,
+                        voiceNote: storedVoiceData
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Notify desktop to show "sent" page
+                    if (dataChannel && dataChannel.readyState === "open") {
+                        dataChannel.send(JSON.stringify({ type: 'email-sent' }));
+                    }
+
+                    // Show success message on phone
+                    document.body.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Sniglet', system-ui; color: #ff6b9d;">
+                            <h1 style="font-size: 3rem;">✉️ Sent!</h1>
+                            <p style="font-size: 1.5rem;">Your bouquet has been delivered</p>
+                        </div>
+                    `;
+                } else {
+                    alert('Failed to send email. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send email. Please try again.');
             }
         };
 

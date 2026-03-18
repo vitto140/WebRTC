@@ -23,6 +23,17 @@ PLEASE LOOK AT MY DIARY https://www.figma.com/board/zS6EDmdmtjWqm5HzuJ4ACg/CC4-D
 
 LoveYours uses a hybrid architecture combining WebRTC and WebSockets.
 
+#!/bin/bash
+CURRENT_IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1)
+echo "🔍 IP: $CURRENT_IP"
+
+openssl req -x509 -out localhost.crt -keyout localhost.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj "/CN=172.30.97.12" -extensions EXT -config <( \
+   printf "[dn]\nCN=172.30.97.12\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost,IP:172.30.97.12\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+
+echo "✅ Cert for 172.30.97.12"
+npm start
 ###  WebRTC (Peer-to-Peer)
 
 Used for:
@@ -151,6 +162,11 @@ npm start
 - Successfully implemented voice recording, transmission via WebRTC, and automatic playback on desktop
 - Added Nodemailer integration for email delivery functionality
 - **Current issue:** Page no longer loads on phone after SSL certificate changes - debugging connection/certificate acceptance flow
+
+
+### Week 4
+This week focused on implementing voice messaging functionality and resolving critical mobile compatibility issues. The primary challenge was iOS Safari blocking microphone access on HTTP connections, which required configuring HTTPS using self-signed SSL certificates generated with OpenSSL (including both localhost and LAN IP 192.168.9.191 in the certificate SAN). The server was updated to conditionally use HTTPS in development via dotenv environment configuration and bound to 0.0.0.0 to accept network connections. Voice recording was implemented using the MediaRecorder API, with audio data encoded to base64 and transmitted over WebRTC Data Channels using a JSON message protocol to differentiate between flowers, voice data, and control commands. A significant browser security hurdle was overcome by adding an "Enable Audio" button that users must click before playback to satisfy autoplay policy requirements. Email delivery functionality was integrated using Nodemailer with Gmail SMTP, featuring a DONE button workflow that reveals an email form, sends the bouquet notification, and displays a confirmation page on both devices via WebRTC signaling. Additional debugging included regenerating certificates when the Mac's IP changed, resolving nodemailer version compatibility (downgrading from v8 to v6), fixing SMTP password formatting (removing spaces), improving WebRTC connection stability by adding multiple STUN servers, and managing Git workflow to merge divergent branches. The application now successfully pairs devices via QR code over HTTPS, allows flower selection and voice message recording on mobile, plays audio on desktop after user interaction, and sends email notifications with custom messages.
+
 ##  AI Reflection
 
 - The first week I have used AI for the technical refinement of my idea. 
