@@ -4,8 +4,13 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const { networkInterfaces } = require('os');
-
 const nodemailer = require("nodemailer");
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+const path = require('path');
+const os = require('os');
+
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -37,7 +42,7 @@ app.post('/send-email', async (req, res) => {
                     cid: cid
                 });
 
-                // Reference in HTML using cid
+                // Reference in HTML using cid i kept the style here so it is quicker to load 
                 flowersHTML += `<img src="cid:${cid}" style="width: 250px; height: 250px;" alt="Flower">`;
             });
         }
@@ -53,11 +58,34 @@ app.post('/send-email', async (req, res) => {
         let voiceHTML = '';
         if (voiceNote) {
             const voiceBuffer = Buffer.from(voiceNote, 'base64');
-            attachments.push({
-                filename: 'voice-message.webm',
-                content: voiceBuffer,
-                contentType: 'audio/webm'
+            const tempWebm = path.join(os.tmpdir(), `voice-${Date.now()}.webm`);
+            const tempMp3 = path.join(os.tmpdir(), `voice-${Date.now()}.mp3`);
+
+            fs.writeFileSync(tempWebm, voiceBuffer);
+            
+            await new Promise((resolve, reject) => {
+                ffmpeg(tempWebm)
+                    .toFormat('mp3')
+                    .on('end', resolve)
+                    .on('error', reject)
+                    .save(tempMp3);
             });
+
+            const mp3Buffer = fs.readFileSync(tempMp3);
+            attachments.push({
+                filename: 'voice-message.mp3',
+                content: mp3Buffer,
+                contentType: 'audio/mpeg'
+            });
+            
+            // attachments.push({
+            //     filename: 'voice-message.webm',
+            //     content: voiceBuffer,
+            //     contentType: 'audio/webm'
+            // });
+            fs.unlinkSync(tempWebm);
+            fs.unlinkSync(tempMp3);
+
             voiceHTML = `<p>🎤 Voice message attached (check attachments)</p>`;
         }
 
@@ -182,10 +210,7 @@ app.post('/send-email', async (req, res) => {
                              class="vase" 
                              alt="Vase"
                              style="width: 200px; height: auto; opacity: 0.9;">
-                    </div>
-
-                            ${voiceHTML ? `<audio controls class="voice-badge">🎤 Voice Message Attached</audio>` : ''}
-                    
+                    </div>                    
                     <div style="margin-top: 30px; color: #ff6b9d; font-size: 1.1em;">
                         Made with love 💝
                     </div>
@@ -260,3 +285,4 @@ server.listen(port, '0.0.0.0', () => {
         console.log(`📱 Phone: https://${address}:${port}`);
     });
 });
+

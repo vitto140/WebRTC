@@ -121,7 +121,7 @@ body {
     font-family: "Sniglet", system-ui;
 }
 
-.vase{
+.vase {
     align-items: center;
     justify-content: center;
 }
@@ -243,7 +243,7 @@ body {
 
 .page-after {
     display: none;
-    
+
     min-height: 100vh;
     background-image: url(../assets/background-div.png);
     background-size: cover;
@@ -300,4 +300,19 @@ body {
         transform: scale(1) translateY(0);
         opacity: 1;
     }
+}
+
+#enableAudioBtn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 15px 30px;
+    background: #ff6b9d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-family: 'Sniglet', cursive;
+    cursor: pointer;
+    z-index: 9999;
 }
