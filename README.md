@@ -1,205 +1,16 @@
-# WebRTC
+#  LoveYours – WebRTC Flower Bouquet Creator
 
 ##  Core Idea
 
 **LoveYours** is a real-time collaborative web application that allows users to create and send personalized digital flower bouquets.
 
-The phone acts as a **remote controller**, while the desktop acts as a **live display**. Both devices connect using **WebRTC peer-to-peer communication**, enabling low-latency real-time interaction.
-
-Users can:
-
--  Add flowers in different colors  
--  Write a personalized message  
--  Record a voice message  
-- Send the final bouquet via email  
-
-The connection between devices is established using a **QR code pairing system**, making the setup simple and intuitive.
-
----
-
-##  How It Works (Architecture Overview)
-
-PLEASE LOOK AT MY DIARY https://www.figma.com/board/zS6EDmdmtjWqm5HzuJ4ACg/CC4-DIARY?node-id=0-1&t=rhjQLejusCXPl1Rd-1
-
-LoveYours uses a hybrid architecture combining WebRTC and WebSockets.
-
-#!/bin/bash
-CURRENT_IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1)
-echo "🔍 IP: $CURRENT_IP"
-
-openssl req -x509 -out localhost.crt -keyout localhost.key \
-  -newkey rsa:2048 -nodes -sha256 \
-  -subj "/CN=172.30.97.12" -extensions EXT -config <( \
-   printf "[dn]\nCN=172.30.97.12\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost,IP:172.30.97.12\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-
-echo "✅ Cert for 172.30.97.12"
-npm start
-###  WebRTC (Peer-to-Peer)
-
-Used for:
-- Real-time flower controls  
-- Live text synchronization  
-- Voice message transfer  
-
-Once connected, the phone and desktop communicate **directly** using a WebRTC Data Channel.  
-No server is involved in real-time interactions after the connection is established.
-
----
-
-###  WebSocket (Signalling Layer Only)
-
-Used for:
-- Exchanging WebRTC offer/answer  
-- Exchanging ICE candidates  
-- Matching phone and desktop sessions  
-
-WebSockets are used **only during the connection setup phase**.
-
----
-
-### Node.js Backend
-
-The backend server handles:
-- Hosting static frontend files  
-- WebSocket signalling  
-- Email sending via SMTP using Nodemailer  
-
----
-
-###  External Services
-
-- SMTP Provider – Used to deliver bouquet emails  
-- STUN Server – Used for NAT traversal during WebRTC connection setup  
-
----
-
-## Technology Stack
-
-### Frontend
-- HTML5  
-- CSS3  
-- Vanilla JavaScript (ES6+)  
-- WebRTC APIs  
-- MediaRecorder API  
-- Canvas API  
-- QR code libraries  
-
-### Backend
-- Node.js  
-- Express.js  
-- ws (WebSocket library)  
-- Nodemailer  
-
-
-
-
-## ️ How To Run The Project Locally
-
-### 1 Clone the Repository
-
-```bash
-git clone https://github.com/vitto140/WebRTC.git
-cd WebRTC
-
-### 2 Install Dependencies
-npm install
-
-### 3 Start the Server
-npm start
-
- ```
---- 
-
-##  Development Ideal Timeline 
-### Week 1
-- Project planning and research
-- Technical documentation
-- User flow design
-### Week 2
-- WebRTC connection with QR pairing
-- Basic flower selection and rendering
-- Console logging to prove data flow
-
-### Week 3
-- Complete UI design (phone + desktop)
-- Voice message recording and playback
-- Live text synchronization
-- Email sending functionality
-
-### Week 4
-- Live text synchronization
-- Polish animations and transitions
-- Final testing and bug fixes
-
-### Week 5
-- Implement 1-2 bonus features
-- Performance optimization
-- Comprehensive README update
----
-
-## What I followed from the Plan
-
-### Week 1
-- Project planning and research
-- Created technical documentation and user flow diagrams
-- Defined project concept: phone-controlled bouquet creator using WebRTC
-- Set up initial project structure with Express server and static files
-
-### Week 2
-- Implemented WebSocket signalling server with Socket.io for peer discovery
-- Established WebRTC peer-to-peer data channel communication
-- Created QR code pairing system for seamless phone-desktop connection
-- Built flower carousel on phone controller with real-time rendering on desktop
-- Debugged ICE candidate exchange and connection state issues
-- Successfully tested flower selection sending from phone to desktop display
-
-### Week 3
-- Designed and implemented complete UI for both phone controller and desktop display
-- Integrated voice message recording using MediaRecorder API
-- **Got stuck:** iOS Safari blocked microphone access due to HTTP security restrictions
-- Configured HTTPS with self-signed SSL certificates (OpenSSL) for development
-- Updated server to use conditional HTTPS/HTTP based on environment (dotenv)
-- Successfully implemented voice recording, transmission via WebRTC, and automatic playback on desktop
-- Added Nodemailer integration for email delivery functionality
-- **Current issue:** Page no longer loads on phone after SSL certificate changes - debugging connection/certificate acceptance flow
-
-
-### Week 4
-This week focused on implementing voice messaging functionality and resolving critical mobile compatibility issues. The primary challenge was iOS Safari blocking microphone access on HTTP connections, which required configuring HTTPS using self-signed SSL certificates generated with OpenSSL (including both localhost and LAN IP 192.168.9.191 in the certificate SAN). The server was updated to conditionally use HTTPS in development via dotenv environment configuration and bound to 0.0.0.0 to accept network connections. Voice recording was implemented using the MediaRecorder API, with audio data encoded to base64 and transmitted over WebRTC Data Channels using a JSON message protocol to differentiate between flowers, voice data, and control commands. A significant browser security hurdle was overcome by adding an "Enable Audio" button that users must click before playback to satisfy autoplay policy requirements. Email delivery functionality was integrated using Nodemailer with Gmail SMTP, featuring a DONE button workflow that reveals an email form, sends the bouquet notification, and displays a confirmation page on both devices via WebRTC signaling. Additional debugging included regenerating certificates when the Mac's IP changed, resolving nodemailer version compatibility (downgrading from v8 to v6), fixing SMTP password formatting (removing spaces), improving WebRTC connection stability by adding multiple STUN servers, and managing Git workflow to merge divergent branches. The application now successfully pairs devices via QR code over HTTPS, allows flower selection and voice message recording on mobile, plays audio on desktop after user interaction, and sends email notifications with custom messages.
-
-##  AI Reflection
-
-- The first week I have used AI for the technical refinement of my idea. 
-Ask it to write my idea in a clear way, and in the format in which it looks good on the read me file.
-I have told it what I want to do and what I will use and do to use it(with links for the MD DOCUMENTATION) and Claude made it look pretty 
-Moreover I asked it to create a Weekly Planning to help me keep everything in track.
-I used Cava AI to start creating some illustrations for the overall style of the page. 
-I have also used it for research on clients/ server who/what is suppose to be who and where should their code be, because I am slow at learning new things and I get confused sometimes.
-
-- The second week I have used AI to debug because the connection was not working, once due to the incorrect const url, and my second big mistake was i forgot to .appendChild(flower);  in the setupDataChannel. These ware dumb mistakes that cost me a long time
-
-- AI Reflection - Week 5
-This week I relied heavily on AI for email template debugging and CSS architecture decisions. When the embedded flower images weren't displaying in Gmail, Claude helped me understand Nodemailer's cid: (Content-ID) system and how to properly reference embedded attachments in HTML emails. I struggled with positioning the flowers above the vase in the email - my initial CSS approach didn't work because email clients have limited CSS support. Claude suggested using position: relative on the container and position: absolute on both the flowers and vase with specific bottom values and z-index layering, which worked perfectly. For the WebM to MP3 conversion, I initially wanted to avoid installing ffmpeg, so Claude suggested using the CloudConvert API as an alternative, though we ended up using ffmpeg-static for simplicity. The dark mode email compatibility issue was something I discovered myself when testing - the background turned dark but the header stayed light. Claude provided the @media (prefers-color-scheme: dark) solution with !important flags to force colors. I used AI to refactor the entire CSS file with CSS variables, which made the code much cleaner and easier to understand. The Gmail validation regex was provided by Claude since I'm not confident with regular expressions. The biggest time-saver was the bash script for auto-detecting IP and regenerating certificates - I was manually doing this every time I switched networks and Claude suggested automating it completely. I also used Cava AI to generate final flower illustrations and refinements to the vase asset to match the overall aesthetic. Overall, AI helped me solve complex technical problems (email rendering, audio conversion, SSL automation) that would have taken days of trial-and-error, allowing me to focus on design decisions and user experience instead.
-
-
-
-
-
-
-
-# 🌸 LoveYours – WebRTC
-
-## 💡 Core Idea
-
-**LoveYours** is a real-time collaborative web application that allows users to create and send personalized digital flower bouquets.
-
 The phone acts as a **remote controller**, while the desktop acts as a **live display**. Both devices connect using **WebRTC peer-to-peer communication**, enabling low-latency, real-time interaction.
 
-Users can:
-- Add flowers in different colors  
-- Write a personalized message  
-- Record a voice message  
-- Send the final bouquet via email  
+**Users can:**
+- Select flowers from a carousel
+- Write a personalized message
+- Record a voice message
+- Send the final bouquet via email
 
 Devices are paired through a **QR code system**, making the experience seamless and intuitive.
 
@@ -207,223 +18,335 @@ Devices are paired through a **QR code system**, making the experience seamless 
 
 ## 🏗️ Architecture Overview
 
-📌 Full development diary:  
-https://www.figma.com/board/zS6EDmdmtjWqm5HzuJ4ACg/CC4-DIARY?node-id=0-1&t=rhjQLejusCXPl1Rd-1
+📌 **Full development diary:**  
+[View on Figma](https://www.figma.com/board/zS6EDmdmtjWqm5HzuJ4ACg/CC4-DIARY?node-id=0-1&t=rhjQLejusCXPl1Rd-1)
 
 LoveYours uses a **hybrid architecture** combining WebRTC and WebSockets.
 
 ### 🔗 WebRTC (Peer-to-Peer)
 
-Used for:
-- Real-time flower controls  
-- Live text synchronization  
-- Voice message transfer  
+**Used for:**
+- Real-time flower selection
+- Voice message transfer
+- Control commands
 
-Once connected, devices communicate **directly** via a WebRTC Data Channel.
-
----
+Once connected, devices communicate **directly** via a WebRTC Data Channel with no server intermediary.
 
 ### 🔌 WebSocket (Signaling Only)
 
-Used for:
-- Exchanging WebRTC offer/answer  
-- Exchanging ICE candidates  
-- Matching phone and desktop sessions  
+**Used for:**
+- Exchanging WebRTC offer/answer
+- Exchanging ICE candidates
+- Matching phone and desktop sessions
 
-Only used during the connection setup phase.
-
----
+WebSockets are only used **during the connection setup phase**.
 
 ### 🖥️ Node.js Backend
 
-Handles:
-- Hosting static frontend files  
-- WebSocket signalling  
-- Email sending via SMTP using Nodemailer  
-
----
+**Handles:**
+- Hosting static frontend files
+- WebSocket signalling (Socket.io)
+- Email sending via SMTP (Nodemailer)
 
 ### 🌐 External Services
 
-- SMTP Provider (Gmail)  
-- STUN Server  
+- **SMTP Provider:** Gmail
+- **STUN Server:** Google STUN servers for NAT traversal
 
 ---
 
 ## 🧰 Technology Stack
 
 ### Frontend
-- HTML5  
-- CSS3  
-- Vanilla JavaScript (ES6+)  
-- WebRTC APIs  
-- MediaRecorder API  
-- Canvas API  
-- QR code libraries  
+- HTML5
+- CSS3 (with CSS variables)
+- Vanilla JavaScript (ES6+)
+- WebRTC APIs
+- MediaRecorder API
+- QRCode.js
 
 ### Backend
-- Node.js  
-- Express.js  
-- Socket.io  
-- Nodemailer (v6)  
+- Node.js
+- Express.js
+- Socket.io
+- Nodemailer (v6)
+- ffmpeg-static
+- fluent-ffmpeg
 
 ---
 
-## ⚙️ How To Run The Project Locally
+## 🚀 How To Run The Project Locally
 
 ### 📋 Prerequisites
-- Node.js (v14 or higher)  
-- Gmail account with 2FA enabled  
-- Same WiFi network for desktop and mobile  
+- **Node.js** (v14 or higher)
+- **Gmail account** with 2FA enabled and App Password generated
+- **Same WiFi network** for both desktop and mobile devices
 
 ---
 
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/vitto140/WebRTC.git
+cd WebRTC
+```
 
-## Install Dependencies
+---
+
+### 2️⃣ Install Dependencies
+```bash
 npm install
+```
 
+**This installs:**
+- `express` - Web server
+- `socket.io` - WebSocket signaling
+- `nodemailer@6` - Email delivery (must be v6)
+- `dotenv` - Environment variables
+- `ffmpeg-static` - Audio conversion
+- `fluent-ffmpeg` - Audio processing
 
-Installs:
+---
 
-express
-socket.io
-nodemailer@6
-dotenv
-ffmpeg-static
-fluent-ffmpeg
+### 3️⃣ Configure Environment Variables
 
-Generate SSL Certificate
-Option A: Manual
+Create a `.env` file in the root directory:
+```env
+NODE_ENV=development
+SMTP_USER=your-gmail@gmail.com
+SMTP_PASS=your-16-char-app-password
+```
+
+**How to get Gmail App Password:**
+1. Enable 2FA on your Gmail account
+2. Go to https://myaccount.google.com/apppasswords
+3. Generate a new app password for "Mail"
+4. Copy the 16-character password (no spaces!)
+
+---
+
+### 4️⃣ Generate SSL Certificate
+
+**Check your current IP address:**
+```bash
 ifconfig | grep "inet " | grep -v 127.0.0.1
+```
 
+**Option A: Manual Generation**
+```bash
 openssl req -x509 -out localhost.crt -keyout localhost.key \
   -newkey rsa:2048 -nodes -sha256 \
   -subj '/CN=YOUR_IP_HERE' -extensions EXT -config <( \
    printf "[dn]\nCN=YOUR_IP_HERE\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost,IP:YOUR_IP_HERE\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```
 
-Option B: Automated
+Replace `YOUR_IP_HERE` with your actual IP (e.g., `192.168.1.100`)
+
+**Option B: Automated Script**
+```bash
 chmod +x setup.sh
 ./setup.sh
+```
 
+This script:
+- Auto-detects your IP
+- Generates the SSL certificate
+- Starts the server
 
-This:
+---
 
-Detects your IP
-Generates SSL certificate
-Starts the server
-
-
-Start the Server
+### 5️⃣ Start the Server
+```bash
 npm start
+```
 
-
-Expected output:
-
+**Expected output:**
+```
 Server running on https://localhost:3000
-📱 Phone: https://YOUR_IP:3000
+📱 Phone: https://1xx.xxx.x.x:3000
+```
 
-6️⃣ Access the App
-💻 Desktop
-Go to: https://YOUR_IP:3000 (not localhost)
-Accept SSL warning
-QR code appears
-📱 Phone
-Scan QR code
-Accept SSL warning
-Controller loads
+---
 
-👉 Click "🔊 Enable Audio" on desktop (required for playback)
+### 6️⃣ Access the Application
 
-🔧 Troubleshooting
+**💻 On Desktop:**
+1. Open browser and go to `https://YOUR_IP:3000` (**NOT** `localhost`!)
+2. Accept the SSL certificate warning (click "Advanced" → "Proceed")
+3. A QR code will appear on screen
 
-Site not reachable
+**📱 On Phone:**
+1. Scan the QR code with your phone camera
+2. Accept the SSL certificate warning
+3. Controller interface loads
+4. Click **"🔊 Enable Audio"** button on desktop (required for voice playback)
 
-Same WiFi network
-Correct IP
-Server running on 0.0.0.0
+**Example URLs:**
+- Desktop: `https://192.168.1.100:3000`
+- Phone: Scan QR code (automatically contains correct IP)
 
-Voice not playing
+---
 
-Click "Enable Audio" on desktop
+## 🔧 Troubleshooting
 
-Email not sending
+### Problem: "This site can't be reached"
+**Solutions:**
+- Both devices on same WiFi network
+- Regenerate SSL certificate with correct IP address
+- Server listening on `0.0.0.0` (check `index.js`)
 
-Check .env credentials
-Remove spaces in password
-Use Nodemailer v6
-Gmail only
+### Problem: "Voice message not playing"
+**Solution:**
+- Click the **"Enable Audio"** button on desktop first
+- This is required by browser autoplay policies
 
-Phone not connecting after network change
+### Problem: "Email not sending"
+**Solutions:**
+- Check `.env` file has correct Gmail credentials
+- Remove any spaces from `SMTP_PASS`
+- Only Gmail addresses are supported
+- Using Nodemailer v6 (not v8)
 
-Run:
-./setup.sh
+### Problem: "Phone can't connect after changing WiFi"
+**Solution:**
+- Run `./setup.sh` to regenerate certificate with new IP
+- OR manually regenerate certificate with updated IP address
 
-⚠️ Important Notes
-HTTPS is required (iOS microphone restriction)
-Use IP address (not localhost)
-Gmail only supported
-SSL must be regenerated when IP changes
+---
 
-📅 Development Timeline
-Week 1
-Planning & research
-Technical documentation
-User flow design
-Week 2
-WebRTC + QR pairing
-Flower selection prototype
-Data flow testing
-Week 3
-Full UI implementation
-Voice recording
-Email functionality
-Week 4
-Voice + mobile fixes
-Animations & polish
-Testing
-Week 5
-Bonus features
-Performance optimization
-README improvements
-✅ What Was Achieved
-Week 1–3 Highlights
-WebRTC connection established
-QR pairing system implemented
-Voice recording + playback working over HTTPS
-Email sending with Nodemailer
-Solved iOS Safari microphone restriction
-Week 4 Deep Dive
-Implemented HTTPS with OpenSSL (LAN IP support)
-Built WebRTC data protocol (flowers, voice, commands)
-Solved autoplay restriction with user-triggered audio
-Added Gmail SMTP email workflow
-Fixed:
-Nodemailer version issues
-SMTP password formatting
-ICE / STUN reliability
-Git branch merging
-🤖 AI Reflection
-Week 1–2
-Used AI for:
-Idea refinement
-Documentation formatting
-Planning
-Debugging (connection issues, missing DOM updates)
-Week 5
+## ⚠️ Important Notes
 
-AI helped significantly with:
+- **HTTPS is required** for iOS Safari microphone access
+- **Desktop must be accessed via IP address** (not localhost) for QR code to work
+- **Gmail only** - other email providers are not supported
+- **Certificate expires** when you change networks - regenerate with new IP
+- **Voice recordings** are limited to 30 seconds
 
-Email rendering issues (Gmail + CID images)
-CSS limitations in email clients
-Audio conversion (WebM → MP3)
-Dark mode compatibility
-Regex validation
-SSL automation script
+---
+## IDEAL Development Roadmap
+### Week 1 
+- Project planning and research
+- Technical documentation
+- User flow design
+### Week 2
+- WebRTC connection with QR pairing
+- Basic flower selection and rendering
+- Console logging to prove data flow
+### Week 3
+- Complete UI design (phone + desktop)
+- Live text synchronization
+- Email sending functionality
+### Week 4
+- Voice message recording and playback
+- Polish animations and transitions
+- Final testing and bug fixes
+### Week 5 (If time)
+- Implement 1-2 bonus features
+- Performance optimization
+- Comprehensive README update
 
-Also used AI tools for:
+## 📅 REAL Development Timeline
 
-Visual asset generation
-UI consistency
-🧠 Final Reflection
+### Week 1 - Planning & Research
+- Project planning and research
+- Created technical documentation and user flow diagrams
+- Defined project concept: phone-controlled bouquet creator using WebRTC
+- Set up initial project structure with Express server and static files
 
-AI enabled solving complex problems (email rendering, SSL setup, WebRTC debugging) much faster, allowing more focus on UX and design decisions rather than trial-and-error debugging.
+### Week 2 - Core WebRTC Implementation
+- Implemented WebSocket signalling server with Socket.io for peer discovery
+- Established WebRTC peer-to-peer data channel communication
+- Created QR code pairing system for seamless phone-desktop connection
+- Built flower carousel on phone controller with real-time rendering on desktop
+- Debugged ICE candidate exchange and connection state issues
+- Successfully tested flower selection sending from phone to desktop display
+
+### Week 3 - UI & Voice Features
+- Designed and implemented complete UI for both phone controller and desktop display
+- Integrated voice message recording using MediaRecorder API
+- **Challenge:** iOS Safari blocked microphone access due to HTTP security restrictions
+- Configured HTTPS with self-signed SSL certificates (OpenSSL) for development
+- Updated server to use conditional HTTPS/HTTP based on environment (dotenv)
+- Successfully implemented voice recording, transmission via WebRTC, and automatic playback on desktop
+- Added Nodemailer integration for email delivery functionality
+
+### Week 4 - Voice Messaging & Mobile Compatibility
+- Focused on implementing voice messaging functionality and resolving critical mobile compatibility issues
+- Configured HTTPS using self-signed SSL certificates generated with OpenSSL (including both localhost and LAN IP in the certificate SAN)
+- Server updated to conditionally use HTTPS in development via dotenv and bound to 0.0.0.0
+- Implemented MediaRecorder API with audio data encoded to base64 and transmitted over WebRTC Data Channels
+- Created JSON message protocol to differentiate between flowers, voice data, and control commands
+- Overcame browser security hurdle by adding "Enable Audio" button to satisfy autoplay policy requirements
+- Integrated email delivery functionality using Nodemailer with Gmail SMTP
+- Added DONE button workflow that reveals email form, sends bouquet notification, and displays confirmation on both devices
+- Debugged: certificate regeneration when Mac IP changed, Nodemailer version compatibility (v8→v6), SMTP password formatting, WebRTC connection stability with multiple STUN servers
+
+### Week 5 - Email Template & Final Polish
+- Completed email delivery system with embedded images using Nodemailer's CID (Content-ID) system
+- Converted voice messages from WebM to MP3 format using ffmpeg for email client compatibility
+- Redesigned email template with HTML/CSS matching desktop bouquet display
+- Implemented positioned flowers overlapping vase using flexbox and absolute positioning
+- Added gradient backgrounds and responsive dark mode support using CSS media queries
+- Implemented Gmail-only validation on controller with clear error messages
+- Completely redesigned controller UI with cohesive visual style matching desktop interface
+- Created gradient buttons for voice controls (green START, red STOP, blue PLAY)
+- Refactored CSS using CSS variables for colors, fonts, shadows, and border-radius
+- Created bash script (`setup.sh`) to auto-detect IP, regenerate SSL certificates, and start server
+- Refined "Enable Audio" button with better positioning and styling
+- Final testing confirmed complete workflow: QR pairing, flower selection, voice recording/playback, Gmail validation, email delivery with embedded images and MP3 attachments, synchronized "Delivered!" confirmation screens
+
+---
+
+## 🤖 AI Reflection
+
+### Week 1-2
+**Used AI for:**
+- Technical refinement of project idea
+- Documentation formatting (Markdown)
+- Weekly planning structure
+- Visual asset generation (Cava AI)
+- Client/server architecture research
+- Debugging connection issues (incorrect URL, missing DOM updates)
+
+### Week 3-4
+**Used AI for:**
+- SSL certificate configuration guidance
+- WebRTC debugging (ICE candidates, STUN servers)
+- Nodemailer version compatibility issues
+- Environment variable configuration
+- Git workflow (branch merging)
+
+### Week 5
+**AI helped significantly with:**
+- **Email rendering issues:** Understanding Nodemailer's `cid:` (Content-ID) system for embedded images
+- **CSS positioning challenges:** Email clients have limited CSS support - Claude suggested `position: relative` container with `position: absolute` for flowers/vase using specific `bottom` values and z-index layering
+- **Audio conversion:** Explored CloudConvert API vs ffmpeg-static for WebM→MP3 conversion
+- **Dark mode compatibility:** Implemented `@media (prefers-color-scheme: dark)` with `!important` flags
+- **CSS architecture:** Refactored entire stylesheet with CSS variables for maintainability
+- **Form validation:** Gmail regex validation pattern
+- **Automation:** Bash script for auto-detecting IP and regenerating certificates
+- **Visual assets:** Cava AI for flower illustrations and vase refinements
+
+### Overall Impact
+AI helped solve complex technical problems (email rendering, audio conversion, SSL automation, WebRTC debugging) that would have taken days of trial-and-error, allowing me to focus on design decisions and user experience instead. The biggest time-savers were the automated setup script and understanding email client CSS limitations early.
+
+---
+
+## License
+
+This project was created for educational purposes as part of Creative Code coursework.
+
+---
+
+## Author
+
+**Vittoria Romano**  
+Creative Code – March 2026, Belgium
+
+---
+
+## Acknowledgments
+
+- OpenSSL for SSL certificate generation
+- Google STUN servers for WebRTC NAT traversal
+- Anthropic Claude for debugging and architectural guidance
+- Nodemailer community for email delivery solutions
