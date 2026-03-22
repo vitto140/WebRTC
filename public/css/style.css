@@ -20,7 +20,7 @@
 body {
     margin: 0;
     box-sizing: border-box;
-    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-family: "Comic Sans MS", system-ui, sans-serif;
     background-color: #FFF9BF;
 }
 
@@ -312,7 +312,155 @@ body {
     border: none;
     border-radius: 10px;
     font-size: 1.2rem;
-    font-family: 'Sniglet', cursive;
+    font-family: 'Sniglet',system-ui ;
     cursor: pointer;
     z-index: 9999;
+}
+
+/* Controller Header */
+.controller-header {
+    text-align: center;
+    margin: 20px 0 30px;
+}
+
+.controller-logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.controller-main-title {
+    color: #C9245A;
+    font-size: 3rem;
+    font-family: "Gaegu", sans-serif;
+    margin: 10px 0 5px;
+}
+
+.controller-subtitle {
+    color: #ff6b9d;
+    font-size: 1.2rem;
+    font-family: "Sniglet", system-ui;
+    margin: 0;
+}
+
+.section-title {
+    color: #C9245A;
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 0 0 20px;
+    font-family: "Sniglet", system-ui;
+}
+
+/* Voice Controls */
+.voice-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.voice-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-family: 'Sniglet', system-ui;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.btn-start {
+    background: #0c4176;
+}
+
+.btn-stop {
+    background: #C9245A;
+}
+
+.btn-play {
+    background: #FFF9BF;
+    grid-column: 1 / -1;
+}
+
+.voice-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.voice-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    color: #C9245A;
+    font-size: 1rem;
+    font-family: 'Sniglet', system-ui;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ff6b9d;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Sniglet', system-ui;
+    box-sizing: border-box;
+    background: white;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #C9245A;
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.error-message {
+    color: #d63031;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    font-family: 'Sniglet', system-ui;
+}
+
+.send-btn {
+    background: #C9245A;
+}
+
+/* Controller Footer */
+.controller-footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+    color: #C9245A;
+    font-family: "Sniglet", system-ui;
+}
+
+.footer-logo {
+    width: 60px;
+    margin-bottom: 15px;
+}
+
+.footer-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.footer-text p {
+    margin: 5px 0;
 }

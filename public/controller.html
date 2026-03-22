@@ -1,44 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
     <title>LoveYOURS CONTROLLER</title>
 </head>
+
 <body class="controller-body">
     <div class="controller-container">
+
+        <!-- Header -->
+        <div class="controller-header">
+            <img src="assets/logo-ly.png" alt="Logo" class="controller-logo">
+            <h1 class="controller-main-title">LOVE YOURS</h1>
+            <p class="controller-subtitle">Create Your Bouquet</p>
+        </div>
+
         <!-- Flower Picker Section -->
         <div class="flower-section">
-            <h2 class="controller-title">PICK THE FLOWERS</h2>
+            <h2 class="section-title">PICK THE FLOWERS</h2>
+
             <div class="carousel">
                 <button class="carousel-btn prev" onclick="changeFlower(-1)">
-                    <span>&lt;</span>
+                    <span>‹</span>
                 </button>
                 <div class="flower-display">
                     <img id="currentFlower" src="assets/flower1.png" alt="Flower" class="flower-img">
                 </div>
                 <button class="carousel-btn next" onclick="changeFlower(1)">
-                    <span>&gt;</span>
+                    <span>›</span>
                 </button>
             </div>
-            <div class="message-section">
-                <h2 class="controller-title">LEAVE A MESSAGE</h2>
-                <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
-                <div class="voice-controls">
-                    <button class="voice-btn add-flower-btn" id="startBtn">START</button>
-                    <button class="voice-btn add-flower-btn" id="stopBtn">STOP</button>
-                    <button class="voice-btn add-flower-btn" onclick="playVoice()">PLAY</button>
-                </div>
+
+            <button class="add-flower-btn" onclick="addCurrentFlower()">ADD FLOWER</button>
+        </div>
+
+        <!-- Voice Message Section -->
+        <div class="flower-section">
+            <h2 class="section-title">LEAVE A MESSAGE</h2>
+
+            <div class="voice-controls">
+                <button class="voice-btn btn-start" id="startBtn">
+                     START
+                </button>
+                <button class="voice-btn btn-stop" id="stopBtn">
+                     STOP
+                </button>
+                <button class="voice-btn btn-play" onclick="playVoice()">
+                    PLAY
+                </button>
             </div>
-            <div id="emailForm" style="display: none; margin-top: 20px;">
-                <input type="email" id="recipientEmail" placeholder="Recipient's email"
-                    style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d;">
-                <textarea id="messageText" placeholder="Add a personal message (optional)"
-                    style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 2px solid #ff6b9d; min-height: 80px;"></textarea>
-                <button class="add-flower-btn" onclick="sendEmail()">SEND</button>
+        </div>
+
+        <!-- Done Button -->
+        <button class="done-btn" id="doneBtn" onclick="showEmailForm()">
+            DONE!
+        </button>
+
+        <!-- Email Form (Hidden Initially) -->
+        <div class="flower-section" id="emailForm" style="display: none;">
+            <h2 class="section-title">SEND YOUR BOUQUET</h2>
+
+            <div class="form-group">
+                <label class="form-label">Recipient's Email (Gmail only)</label>
+                <input type="email" id="recipientEmail" placeholder="recipient@gmail.com" class="form-input">
+                <span class="error-message" id="emailError" style="display: none;">
+                     Please enter a valid Gmail address
+                </span>
             </div>
-            <button class="add-flower-btn" id="doneBtn" onclick="showEmailForm()">DONE!</button>
+
+            <div class="form-group">
+                <label class="form-label">Personal Message (Optional)</label>
+                <textarea id="messageText" placeholder="Write your message here..." class="form-textarea"></textarea>
+            </div>
+
+            <button class="add-flower-btn send-btn" onclick="sendEmail()">
+                SEND BOUQUET
+            </button>
+        </div>
+        <!-- Footer -->
+        <div class="controller-footer">
+            <img src="assets/logo-ly.png" alt="Logo" class="footer-logo">
+            <div class="footer-text">
+                <p>© 2026 Creative Code – Vittoria Romano</p>
+                <p>March 2026, Belgium</p>
+            </div>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
@@ -47,7 +95,7 @@
         let peerConnection;
         let dataChannel;
         let targetSocketId;
-        let selectedFlowers = [];  
+        let selectedFlowers = [];
         let storedVoiceData = null;
 
         const servers = {
@@ -154,6 +202,7 @@
                 alert('Not connected yet!');
             }
         };
+        
 
         const init = async () => {
             targetSocketId = getUrlParameter('id');
@@ -223,54 +272,64 @@
             document.getElementById('emailForm').style.display = 'block';
             document.getElementById('doneBtn').style.display = 'none';
         };
-
         const sendEmail = async () => {
-            const email = document.getElementById('recipientEmail').value;
-            const message = document.getElementById('messageText').value;
+                const email = document.getElementById('recipientEmail').value.trim();
+                const message = document.getElementById('messageText').value;
+                const errorMsg = document.getElementById('emailError');
 
-            if (!email) {
-                alert('Please enter an email address');
-                return;
-            }
-
-            try {
-                const response = await fetch('/send-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        recipient: email,
-                        message: message,
-                        flowers: selectedFlowers,
-                        voiceNote: storedVoiceData
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Notify desktop to show "sent" page
-                    if (dataChannel && dataChannel.readyState === "open") {
-                        dataChannel.send(JSON.stringify({ type: 'email-sent' }));
-                    }
-
-                    // Show success message on phone
-                    document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Sniglet', system-ui; color: #ff6b9d;">
-                            <h1 style="font-size: 3rem;">✉️ Sent!</h1>
-                            <p style="font-size: 1.5rem;">Your bouquet has been delivered</p>
-                        </div>
-                    `;
-                } else {
-                    alert('Failed to send email. Please try again.');
+                // Validate Gmail
+                if (!email) {
+                    errorMsg.textContent = '⚠️ Please enter an email address';
+                    errorMsg.style.display = 'block';
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to send email. Please try again.');
-            }
-        };
 
+                const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+                if (!gmailRegex.test(email)) {
+                    errorMsg.textContent = '⚠️ Only Gmail addresses are supported (@gmail.com)';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                errorMsg.style.display = 'none';
+
+                try {
+                    const response = await fetch('/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            recipient: email,
+                            message: message,
+                            flowers: selectedFlowers,
+                            voiceNote: storedVoiceData
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        if (dataChannel && dataChannel.readyState === "open") {
+                            dataChannel.send(JSON.stringify({ type: 'email-sent' }));
+                        }
+
+                        document.body.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Sniglet', system-ui; color: #C9245A; background: url(assets/background-div.png); background-size: cover;">
+                                <h1 style="font-size: 3rem; font-family: 'Gaegu', sans-serif;">✉️ Sent!</h1>
+                                <p style="font-size: 1.5rem;">Your bouquet has been delivered 💐</p>
+                            </div>
+                        `;
+                    } else {
+                        // Show the actual error from server
+                        alert('Failed to send email: ' + (result.error || 'Unknown error'));
+                        console.error('Server error:', result);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Network error: ' + error.message);
+                }
+            };
         init();
     </script>
 </body>
