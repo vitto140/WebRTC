@@ -1,44 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="css/style.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="assets/logo-ly.png" type="image/x-icon">
     <title>LoveYours</title>
 </head>
-
 <body>
     <div class="page">
-
         <div class="top-section">
             <h1 class="title">LOVE YOURS</h1>
         </div>
-
         <div class="middle-section">
             <h2 class="subtitle">DIGITAL FLOWER SHOP</h2>
-
             <p class="description">
                 Create your own bouquet of flowers. User will scan the QR Code. On the
                 “bigger screen” an empty vase will appear. On the device that scanned
                 the QR code various options appear to personalize the bouquet.
             </p>
-
-
-
             <div id="qr" class="qr-container"></div>
-
-
         </div>
-
         <div class="bottom-section">
             <img src="assets/logo-ly.png" alt="Logo">
             <div>
@@ -71,22 +57,11 @@
 
         const init = () => {
             socket = io.connect('/');
-
-            // socket.on('connect', () => {
-            //     console.log('Connected:', socket.id);
-
-            //     //const url = `https://192.168.9.191:3000/controller.html?id=${socket.id}`;
-            //     const url = `${window.location.protocol}//${window.location.host}/controller.html?id=${socket.id}`;
-            //     const qr = qrcode(4, 'L');
-            //     qr.addData(url);
-            //     qr.make();
-            //     document.getElementById('qr').innerHTML = qr.createImgTag(4);
-            // });
             socket.on('connect', () => {
                 console.log('Connected:', socket.id);
 
                 const url = `${new URL(`/controller.html?id=${socket.id}`, window.location)}`;
-                console.log('QR URL:', url); // Debug - check what URL is generated
+                console.log('QR URL:', url); 
 
                 const qr = qrcode(4, 'L');
                 qr.addData(url);
@@ -136,7 +111,7 @@
                     setupDataChannel();
                 };
             }
-            //LOGS
+            
             peerConnection.onconnectionstatechange = () => {
                 console.log('🔌 Connection state:', peerConnection.connectionState);
             };
@@ -181,36 +156,20 @@
                     message = { type: 'flower', data: e.data };
                 }
 
-                // if (message.type === 'voice') {
-                //     // Handle voice message
-                //     console.log("🎤 Voice message received");
-                //     playVoiceMessage(message.data);
-                // } if (message.type === 'voice') {
-                //     console.log("🎤 Voice message stored");
-                //     storedVoiceMessage = message.data;
-                // }
-
-                // else if (message.type === 'play') {
-                //     console.log("▶️ Play command received");
-
-                //     if (storedVoiceMessage) {
-                //         playVoiceMessage(storedVoiceMessage);
-                //     }
-
                 if (message.type === 'voice') {
                     console.log("🎤 Voice message received");
                     storedVoiceMessage = message.data;
-                    playVoiceMessage(message.data); // Auto-play when received
+                    playVoiceMessage(message.data); 
                 }
                 else if (message.type === 'play') {
                     console.log("▶️ Play command received");
                     if (storedVoiceMessage) {
-                        playVoiceMessage(storedVoiceMessage); // Replay on demand
+                        playVoiceMessage(storedVoiceMessage); 
                     }
                 } else if (message.type === 'email-sent') {
                     // Show "sent" page on desktop
                     document.body.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%); font-family: 'Sniglet', cursive; color: #ff6b9d;">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%); font-family: 'Sniglet',  system-ui; color: #ff6b9d;">
                             <h1 style="font-size: 4rem;">💐 Delivered!</h1>
                             <p style="font-size: 2rem;">Your bouquet has been sent</p>
                         </div>
@@ -233,8 +192,6 @@
             };
         };
 
-
-
         const playVoiceMessage = base64Audio => {
             const audioBlob = base64ToBlob(base64Audio, 'audio/webm');
             const audioUrl = URL.createObjectURL(audioBlob);
@@ -253,7 +210,7 @@
             messageIndicator.style.padding = '20px';
             messageIndicator.style.borderRadius = '15px';
             messageIndicator.style.fontSize = '1.5rem';
-            messageIndicator.style.fontFamily = 'Sniglet, cursive';
+            messageIndicator.style.fontFamily = 'Sniglet,  system-ui';
             messageIndicator.style.zIndex = '9999';
 
             document.body.appendChild(messageIndicator);
